@@ -1,6 +1,8 @@
 locals {
   environment = "prod"
 
+  state_bucket                                 = "asklepi-core-prod-tfstate"
+  state_project_id                             = "asklepi-core-prod"
   project_id                                   = "asklepi-core-prod"
   service_account_project_id                   = "asklepi-core-prod"
   terraform_apply_service_account_id           = "tf-core-prod-apply"

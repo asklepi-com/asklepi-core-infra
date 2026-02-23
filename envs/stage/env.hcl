@@ -1,6 +1,8 @@
 locals {
   environment = "stage"
 
+  state_bucket                                 = "asklepi-core-stage-tfstate"
+  state_project_id                             = "asklepi-core-stage"
   project_id                                   = "asklepi-core-stage"
   service_account_project_id                   = "asklepi-core-stage"
   terraform_apply_service_account_id           = "tf-core-stage-apply"

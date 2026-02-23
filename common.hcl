@@ -1,5 +1,6 @@
 locals {
   state_bucket                    = "asklepi-tfstate-projects"
+  state_project_id                = "asklepi-org-admin"
   state_prefix                    = "asklepi-core-infra"
   state_location                  = "europe-west1"
   default_region                  = "europe-west1"
