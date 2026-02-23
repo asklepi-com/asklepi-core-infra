@@ -1,0 +1,49 @@
+name: infra-apply
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Target environment
+        options:
+          - dev
+          - stage
+          - prod
+        required: true
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    if: github.ref == 'refs/heads/main'
+    concurrency:
+      group: infra-apply-${{ inputs.environment }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5
+      - name: Install Terragrunt
+        run: |
+          TG_VERSION=0.81.10
+          curl -sSL -o terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v${TG_VERSION}/terragrunt_linux_amd64
+          chmod +x terragrunt
+          sudo mv terragrunt /usr/local/bin/terragrunt
+      - id: auth
+        name: Authenticate to GCP (OIDC + WIF)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_TERRAFORM_SA }}
+          token_format: access_token
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+      - name: Verify active identity
+        run: gcloud auth list --filter=status:ACTIVE --format="value(account)"
+      - name: Apply
+        run: make apply-${{ inputs.environment }}
