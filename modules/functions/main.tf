@@ -2,6 +2,14 @@ locals {
   github_repositories = distinct(compact(concat([var.github_repository], tolist(var.additional_github_repositories))))
 }
 
+data "google_project" "current" {
+  project_id = var.project_id
+}
+
+locals {
+  default_compute_service_account_email = "${data.google_project.current.number}-compute@developer.gserviceaccount.com"
+}
+
 resource "google_project_service" "required" {
   for_each = var.required_services
 
@@ -46,6 +54,25 @@ resource "google_service_account_iam_member" "ci_can_act_as_runtime" {
   service_account_id = google_service_account.runtime.name
   role               = "roles/iam.serviceAccountUser"
   member             = "serviceAccount:${google_service_account.ci_deployer.email}"
+}
+
+resource "google_service_account_iam_member" "ci_can_act_as_default_compute" {
+  service_account_id = "projects/${var.project_id}/serviceAccounts/${local.default_compute_service_account_email}"
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.ci_deployer.email}"
+
+  depends_on = [
+    google_project_service.required,
+    google_service_account.ci_deployer,
+  ]
+}
+
+resource "google_project_iam_member" "default_compute_builder" {
+  project = var.project_id
+  role    = "roles/cloudbuild.builds.builder"
+  member  = "serviceAccount:${local.default_compute_service_account_email}"
+
+  depends_on = [google_project_service.required]
 }
 
 resource "google_service_account_iam_member" "github_wif_user" {
