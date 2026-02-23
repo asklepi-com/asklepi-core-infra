@@ -8,7 +8,7 @@ locals {
 }
 
 dependencies {
-  paths = ["../00-apply-identity", "../10-firebase"]
+  paths = ["../10-firebase"]
 }
 
 terraform {

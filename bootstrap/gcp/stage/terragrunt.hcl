@@ -4,7 +4,7 @@ include "root" {
 
 locals {
   common = read_terragrunt_config(find_in_parent_folders("common.hcl"))
-  env    = read_terragrunt_config(find_in_parent_folders("env.hcl"))
+  env    = read_terragrunt_config("${get_terragrunt_dir()}/../../../envs/stage/env.hcl")
 }
 
 terraform {

@@ -21,13 +21,17 @@ Typical resources:
 
 ## Stack order
 
-For each environment (`envs/dev`, `envs/stage`, `envs/prod`):
-1. `00-apply-identity`
-2. `10-firebase`
-3. `20-functions`
+For each environment:
+1. `bootstrap/gcp/<env>` (Terraform apply identity bootstrap)
+2. `envs/<env>/10-firebase`
+3. `envs/<env>/20-functions`
 
 ## Modules configured
 
+- `modules/terraform-apply-identity`
+  - creates Terraform apply service account
+  - grants project IAM roles required for infra applies
+  - grants Workload Identity User on Terraform apply SA to `asklepi-core-infra` repo
 - `modules/firebase`
   - enables Firebase/Firestore APIs
   - creates Firestore database (`(default)` in `eur3`)
@@ -64,10 +68,10 @@ If you want Terraform-managed function deployment later:
 
 ## GitHub environment variables (for asklepi-core-infra repo)
 
-Managed via bootstrapper Terragrunt stacks:
-- `bootstrapper/env-dev-vars`
-- `bootstrapper/env-stage-vars`
-- `bootstrapper/env-prod-vars`
+Managed via GitHub bootstrap stacks:
+- `bootstrap/github/env-dev-vars`
+- `bootstrap/github/env-stage-vars`
+- `bootstrap/github/env-prod-vars`
 
 Values:
 - `dev`

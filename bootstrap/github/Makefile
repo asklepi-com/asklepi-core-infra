@@ -39,8 +39,8 @@ validate: ## Validate Terragrunt files
 tg-init: ## Initialize Terragrunt
 	terragrunt run --all init --non-interactive
 
-tg-plan: ## Plan bootstrapper resources
+tg-plan: ## Plan GitHub bootstrap resources
 	terragrunt run --all plan --non-interactive
 
-apply: ## Apply bootstrapper resources
+apply: ## Apply GitHub bootstrap resources
 	terragrunt run --all apply --non-interactive --no-auto-approve

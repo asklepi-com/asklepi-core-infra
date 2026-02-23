@@ -6,10 +6,6 @@ locals {
   env = read_terragrunt_config(find_in_parent_folders("env.hcl"))
 }
 
-dependencies {
-  paths = ["../00-apply-identity"]
-}
-
 terraform {
   source = "../../../modules/firebase"
 }
