@@ -9,10 +9,9 @@ Infrastructure repository for Core backend runtime resources.
 - `asklepi-core-prod`
 
 Typical resources:
-- Cloud Run services/jobs for core APIs
-- Cloud Functions for business rules
-- Firestore and supporting service IAM/networking
-- Secret Manager bindings for core workloads
+- Firebase/Firestore configuration
+- Cloud Functions Gen2 platform and deployment identities
+- Cloud Run services/jobs for core APIs (next stacks)
 
 ## Environments
 
@@ -20,14 +19,50 @@ Typical resources:
 - `stage`
 - `prod`
 
-## First stack
+## Stack order
 
-- `envs/<environment>/00-apply-identity`
-- Creates Terraform apply service account (`tf-core-<env>-apply`)
-- Grants project roles required for Core infra delivery
-- Grants `roles/iam.workloadIdentityUser` for GitHub OIDC principal set
+For each environment (`envs/dev`, `envs/stage`, `envs/prod`):
+1. `00-apply-identity`
+2. `10-firebase`
+3. `20-functions`
 
-## GitHub environment variables
+## Modules configured
+
+- `modules/firebase`
+  - enables Firebase/Firestore APIs
+  - creates Firestore database (`(default)` in `eur3`)
+- `modules/functions`
+  - enables Cloud Functions platform APIs
+  - creates runtime + CI deployer service accounts
+  - grants Secret Manager and project IAM for runtime/deployer
+  - grants Workload Identity User on deployer SA to `asklepi-functions` repo
+  - optionally deploys a Cloud Functions Gen2 HTTP function when `deploy_enabled=true`
+
+## asklepi-functions integration
+
+`asklepi-functions` owns function source code and deployment workflow.
+
+Infra in this repo provides required identity/runtime values:
+- `ci_deployer_service_account_email` -> set as `GCP_SERVICE_ACCOUNT_EMAIL`
+- `runtime_service_account_email` -> set as `GCP_RUNTIME_SERVICE_ACCOUNT`
+- `workload_identity_provider_name` -> set as `GCP_WORKLOAD_IDENTITY_PROVIDER`
+- `project_id` -> set as `GCP_PROJECT_ID`
+- `runtime_secret_name` -> set as `TURNSTILE_SECRET_NAME`
+
+In each `envs/<env>/env.hcl` under `locals.functions`:
+- `github_repository` is set to `asklepi-com/asklepi-functions`
+- this drives WIF trust binding for CI deployer SA impersonation
+
+## Cloud Functions deployment behavior
+
+`deploy_enabled` defaults to `false` in this repo so function code deployment remains owned by `asklepi-functions`.
+
+If you want Terraform-managed function deployment later:
+- set `deploy_enabled = true`
+- set `function_source_bucket` and `function_source_object`
+- ensure source zip exists in GCS
+
+## GitHub environment variables (for asklepi-core-infra repo)
 
 Managed via bootstrapper Terragrunt stacks:
 - `bootstrapper/env-dev-vars`

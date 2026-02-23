@@ -16,6 +16,13 @@ inputs = {
     }
   }
 
+  users = {
+    emrecavunt = {
+      username   = "emrecavunt"
+      permission = "admin"
+    }
+  }
+
   branch_protection_rules = {
     main = {
       pattern                         = "main"
