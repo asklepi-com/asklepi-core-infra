@@ -29,7 +29,6 @@ plan-prod:
 	cd envs/prod && terragrunt run --all plan $(TG_RUN_FLAGS)
 
 apply-dev:
-	cd bootstrap/gcp/dev && terragrunt apply $(TG_RUN_FLAGS)
 	cd envs/dev && terragrunt run --all apply $(TG_RUN_FLAGS)
 
 apply-stage:
