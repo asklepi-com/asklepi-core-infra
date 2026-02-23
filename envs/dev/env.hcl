@@ -35,7 +35,7 @@ locals {
     runtime_project_roles          = ["roles/datastore.user"]
     ci_deployer_project_roles = [
       "roles/cloudfunctions.developer",
-      "roles/run.developer",
+      "roles/run.admin",
       "roles/cloudbuild.builds.editor",
       "roles/artifactregistry.writer"
     ]
