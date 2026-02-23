@@ -5,6 +5,8 @@ SHELL := /bin/bash
 fmt:
 	terraform fmt -recursive .
 	terragrunt hcl format
+clean:
+	terragrunt run --all clean --non-interactive
 
 validate-hcl:
 	cd envs/dev && terragrunt hcl validate
